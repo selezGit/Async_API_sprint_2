@@ -32,7 +32,7 @@ class FilmView(BaseView):
         """Возвращает короткую информацию по всем фильмам, отсортированным по рейтингу,
         есть возможность фильтровать фильмы по id жанров"""
         films = await film_service.get_by_param(
-            request.url, order=order, genre=genre, page=page, size=size, query=query
+            url=str(request.url), order=order, genre=genre, page=page, size=size, query=query
         )
 
         if not films:
@@ -40,7 +40,7 @@ class FilmView(BaseView):
                 status_code=HTTPStatus.NOT_FOUND, detail="film not found"
             )
 
-        return films
+    return films
 
     @router.get("/{film_id}", response_model=Film, summary="Фильм")
     async def get_details(
@@ -49,7 +49,7 @@ class FilmView(BaseView):
         film_service: FilmService = Depends(get_film_service),
     ) -> Film:
         """Возвращает информацию по одному фильму"""
-        film = await film_service.get_by_id(url=request.url, id=film_id)
+        film = await film_service.get_by_id(url=str(request.url), id=film_id)
         if not film:
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND, detail="film not found"

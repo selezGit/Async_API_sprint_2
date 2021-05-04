@@ -26,15 +26,15 @@ class GenreView(BaseView):
     ) -> Optional[List[Genre]]:
         """Возвращает инф-ию по всем жанрам с возможностью пагинации"""
 
-        data = await genre_service.get_by_param(
+        genres = await genre_service.get_by_param(
             url=str(request.url), page=page, size=size
         )
-        if not data:
+        if not genres:
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND, detail="genre not found"
             )
 
-        return data
+        return genres
 
     @router.get("/{genre_id}", response_model=Genre, summary="Жанр")
     async def get_details(
