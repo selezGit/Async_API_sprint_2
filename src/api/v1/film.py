@@ -40,7 +40,7 @@ class FilmView(BaseView):
                 status_code=HTTPStatus.NOT_FOUND, detail="film not found"
             )
 
-    return films
+        return films
 
     @router.get("/{film_id}", response_model=Film, summary="Фильм")
     async def get_details(
