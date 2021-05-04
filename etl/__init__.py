@@ -14,7 +14,7 @@ import psycopg2.extras
 from elasticsearch import Elasticsearch, helpers
 from pydantic import BaseSettings
 from redis import Redis
-from rediscluster import RedisCluster
+from rediscluster import RedisCluster   
 
 logger = logging.getLogger("ETL")
 
