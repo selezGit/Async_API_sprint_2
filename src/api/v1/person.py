@@ -18,7 +18,7 @@ async def person_details(person_id: str,
                              get_person_service)
                          ) -> Person:
     """Возвращает информацию по одной персоне"""
-    person = await person_service.get_by_id(request.url, person_id)
+    person = await person_service.get_by_id(url=request.url, id=person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
                             detail='person not found')
@@ -44,8 +44,7 @@ async def films_with_person(person_id: str,
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
                             detail='person not found')
 
-    films = await film_service.get_by_list_id(url=request.url,
-                                              person_id=person['id'],
+    films = await film_service.get_by_list_id(url=str(request.url),
                                               film_ids=person['film_ids'],
                                               page=page, size=size)
     if not films:
@@ -63,11 +62,11 @@ async def person_search(query: Optional[str] = None,
                         request: Request = None,
                         person_service: PersonService = Depends(
                             get_person_service)
-                        ) -> List[Person]:
+                        ):
     """Возвращает информацию
     по одному или нескольким персонам"""
 
-    persons = await person_service.get_by_param(url=request.url, q=query, page=page, size=size)
+    persons = await person_service.get_by_param(url=str(request.url), q=query, page=page, size=size)
 
     if not persons:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,

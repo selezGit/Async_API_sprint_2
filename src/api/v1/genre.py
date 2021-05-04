@@ -23,7 +23,7 @@ async def genre_all(size: Optional[int] = 50,
                     ) -> Optional[List[Genre]]:
     """Возвращает инф-ию по всем жанрам с возможностью пагинации"""
 
-    data = await genre_service.get_all(url=request.url, **{'page': page, 'size': size})
+    data = await genre_service.get_by_param(url=str(request.url), page=page, size=size)
     if not data:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
                             detail='genre not found')
@@ -37,7 +37,7 @@ async def genre_details(genre_id: str,
                         request: Request = None,
                         genre_service: GenreService = Depends(get_genre_service)) -> Genre:
     """Возвращает информацию по одному жанру"""
-    genre = await genre_service.get_by_id(request.url, genre_id)
+    genre = await genre_service.get_by_id(url=str(request.url), id=genre_id)
     if not genre:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
                             detail='genre not found')

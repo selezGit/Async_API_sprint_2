@@ -42,7 +42,7 @@ async def film_details(film_id: str,
                        request: Request = None,
                        film_service: FilmService = Depends(get_film_service)) -> Film:
     """Возвращает информацию по одному фильму"""
-    film = await film_service.get_by_id(url=request.url, film_id=film_id)
+    film = await film_service.get_by_id(url=request.url, id=film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
                             detail='film not found')
