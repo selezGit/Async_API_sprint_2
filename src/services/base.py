@@ -30,35 +30,3 @@ class BaseService:  # 5 минут
     async def get_by_param(self, *args, **kwargs) -> Any:
         """Получить объекты по параметрам"""
         pass
-
-    @backoff.on_exception(backoff.expo, Exception)
-    async def _check_cache(self,
-                           url: str,
-                           ) -> Optional[Any]:
-        """Найти обьекты в кэше."""
-        result = await self.redis.get(str(url), )
-        if result:
-            result = json.loads(result)
-        return result
-
-    @backoff.on_exception(backoff.expo, Exception)
-    async def _load_cache(self,
-                          url: str,
-                          data: Any):
-        """Запись объектов в кэш."""
-        data = json.dumps(data)
-        await self.redis.set(key=str(url), value=data, expire=self.FILM_CACHE_EXPIRE_IN_SECONDS)
-
-
-class BaseCache:
-    FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
-    @abc.abstractmethod
-    async def load_cache(self, url: str, data: Any):
-        """Запись объектов в кэш."""
-        pass
-
-    @abc.abstractmethod
-    async def check_cache(self,
-                          url: str):
-        """Запись объектов в кэш."""
-        pass

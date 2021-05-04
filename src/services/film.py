@@ -10,8 +10,9 @@ from elasticsearch import AsyncElasticsearch, exceptions
 from fastapi import Depends
 from models.film import Film
 
-from services.base import BaseService, BaseCache
-from services.cache import RedisCache
+from services.base import BaseService
+from cache.base import BaseCache
+from cache.redis_cache import RedisCache
 
 
 class FilmService(BaseService):
