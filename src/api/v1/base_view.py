@@ -1,15 +1,15 @@
-
-from abc import abstractclassmethod, ABC
+from abc import abstractmethod, ABC
 
 
 class BaseView(ABC):
-
-    @abstractclassmethod
-    async def get_all(self):
+    @classmethod
+    @abstractmethod
+    async def get_all(cls):
         """Возвращает инф-ию по всем объектам с возможностью пагинации"""
         pass
 
-    @abstractclassmethod
-    async def get_details(self):
+    @classmethod
+    @abstractmethod
+    async def get_details(cls):
         """Возвращает информацию по одному объекту"""
         pass

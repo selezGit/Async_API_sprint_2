@@ -13,96 +13,50 @@ from models.genre import Genre
 from services.base import BaseService
 from cache.base import BaseCache
 from cache.redis_cache import RedisCache
+from storage.genre import GenreBaseStorage, GenreElasticStorage
 
 
-class GenreService(BaseService):
-    def __init__(self, cache: BaseCache, elastic: AsyncElasticsearch):
+class GenreBaseService(BaseService):
+    def get_by_id(self, url: str, id: str) -> Optional[Dict]:
+        pass
+
+    def get_by_param(self, url: str, page: int, size: int) -> List[Optional[Dict]]:
+        pass
+
+
+class GenreService(GenreBaseService):
+    def __init__(self, cache: BaseCache, storage: GenreBaseStorage):
         self.cache = cache
-        self.elastic = elastic
+        self.storage = storage
 
-    async def get_by_id(self,
-                        url: str,
-                        data_id: str,
-                        *args,
-                        **kwargs
-                        ) -> Optional[Genre]:
+    async def get_by_id(self, url: str, id: str) -> Optional[Dict]:
         """Получить объект по uuid"""
-        data = await self._check_cache(url)
-        if not data:
-            data = await self._get_data_from_elastic(data_id)
-            if not data:
-                return None
-
-            await self.cache.load_cache(url, data)
-
-        return data
-
-    async def get_all(self,
-                      url: str,
-                      *args,
-                      **kwargs
-                      ) -> Optional[List[Genre]]:
-        """Получить все объекты"""
-
-        filter = kwargs.get('filter')
-        size = kwargs.get('size')
-        page = kwargs.get('page')
         data = await self.cache.check_cache(url)
         if not data:
-            data = await self._get_data_from_elastic(**{'filter': filter, 'size': size, 'page': page})
-            if not data:
-                return None
-
-            await self.cache.load_cache(url, data)
+            data = await self.storage.get(id=id)
+            if data:
+                await self.cache.load_cache(url, data)
 
         return data
 
-    @backoff.on_exception(backoff.expo, Exception)
-    async def _get_data_from_elastic(self,
-                                     data_id=None,
-                                     *args,
-                                     **kwargs
-                                     ) -> Optional[List[Dict]]:
-        """Функция поиска объекта в elasticsearch по data_id или параметрам."""
+    async def get_by_param(
+        self, url: str, page: int, size: int
+    ) -> List[Optional[Dict]]:
 
-        size = kwargs.get('size')
-        page = kwargs.get('page')
+        data = await self.cache.check_cache(url)
+        if not data:
+            data = await self.storage.get_multi(page=page, size=size)
+            if data:
+                await self.cache.load_cache(url, data)
 
-        if bool(bool(size) + bool(page)):
-
-            # если что то из этого есть,
-            # значит запрос был сделан с параметрами
-            try:
-                if page:
-                    query = {'size': size, 'from': (page - 1) * size}
-                doc = await self.elastic.search(index='genre', body=query)
-            except exceptions.NotFoundError:
-                logging.info('index not found')
-                return None
-
-            if not doc:
-                return None
-            result = doc['hits']['hits']
-
-            if not result:
-                return None
-
-            return [genre['_source'] for genre in result]
-
-        else:
-            # если параметров не было, значит ищем по id
-            try:
-                result = await self.elastic.get('genre', data_id)
-                return result['_source']
-
-            except exceptions.NotFoundError:
-                return None
+        return data
 
 
 @lru_cache()
 def get_genre_service(
-        redis: Redis = Depends(get_redis),
-        elastic: AsyncElasticsearch = Depends(get_elastic),
+    redis: Redis = Depends(get_redis),
+    elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> GenreService:
     cache = RedisCache(redis)
-    return GenreService(cache, elastic)
+    storage = GenreElasticStorage(elastic)
+    return GenreService(cache, storage)

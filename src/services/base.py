@@ -5,25 +5,9 @@ import backoff
 
 
 class BaseService:  # 5 минут
-
     @abc.abstractmethod
     async def get_by_id(self, *args, **kwargs) -> Any:
         """Получить объект по uuid"""
-        pass
-
-    @abc.abstractmethod
-    async def get_all(self, *args, **kwargs) -> Any:
-        """Получить все объекты в отсортированном виде"""
-        pass
-
-    @abc.abstractmethod
-    async def _get_data_from_elastic(self, *args, **kwargs):
-        """Функция поиска объекта в elasticsearch по data_id или параметрам."""
-        pass
-
-    @abc.abstractmethod
-    async def get_by_search(self, *args, **kwargs) -> Any:
-        """Найти объект(ы) по ключевому слову"""
         pass
 
     @abc.abstractmethod
