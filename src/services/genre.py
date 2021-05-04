@@ -11,13 +11,13 @@ from fastapi import Depends
 from models.genre import Genre
 
 from services.base import BaseService
+from cache.base import BaseCache
+from cache.redis_cache import RedisCache
 
 
 class GenreService(BaseService):
-    def __init__(self,
-                 redis: Redis,
-                 elastic: AsyncElasticsearch):
-        self.redis = redis
+    def __init__(self, cache: BaseCache, elastic: AsyncElasticsearch):
+        self.cache = cache
         self.elastic = elastic
 
     async def get_by_id(self,
@@ -33,7 +33,7 @@ class GenreService(BaseService):
             if not data:
                 return None
 
-            await self._load_cache(url, data)
+            await self.cache.load_cache(url, data)
 
         return data
 
@@ -47,13 +47,13 @@ class GenreService(BaseService):
         filter = kwargs.get('filter')
         size = kwargs.get('size')
         page = kwargs.get('page')
-        data = await self._check_cache(url)
+        data = await self.cache.check_cache(url)
         if not data:
             data = await self._get_data_from_elastic(**{'filter': filter, 'size': size, 'page': page})
             if not data:
                 return None
 
-            await self._load_cache(url, data)
+            await self.cache.load_cache(url, data)
 
         return data
 
@@ -104,4 +104,5 @@ def get_genre_service(
         redis: Redis = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> GenreService:
-    return GenreService(redis, elastic)
+    cache = RedisCache(redis)
+    return GenreService(cache, elastic)
