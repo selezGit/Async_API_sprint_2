@@ -27,9 +27,7 @@ class GenreService(BaseService):
                         **kwargs
                         ) -> Optional[Genre]:
         """Получить объект по uuid"""
-        data = await self.cache.check_cache(url)
-        print(data)
-        print(url)
+        data = await self._check_cache(url)
         if not data:
             data = await self._get_data_from_elastic(data_id)
             if not data:
