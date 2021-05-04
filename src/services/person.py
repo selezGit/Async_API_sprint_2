@@ -10,14 +10,15 @@ from elasticsearch import AsyncElasticsearch, exceptions
 from fastapi import Depends
 from models.person import Person
 
-from services.base import BaseService
+from services.base import BaseService, BaseCache
+from services.cache import RedisCache
 
 
 class PersonService(BaseService):
     def __init__(self,
-                 redis: Redis,
+                 cache: BaseCache,
                  elastic: AsyncElasticsearch):
-        self.redis = redis
+        self.cache = cache
         self.elastic = elastic
 
     async def get_by_id(self,
@@ -27,13 +28,13 @@ class PersonService(BaseService):
                         **kwargs
                         ) -> Optional[Person]:
         """Получить объект по uuid"""
-        data = await self._check_cache(url)
+        data = await self.cache.check_cache(url)
         if not data:
             data = await self._get_data_from_elastic(data_id)
             if not data:
                 return None
 
-            await self._load_cache(url, data)
+            await self.cache.load_cache(url, data)
 
         return data
 
@@ -47,12 +48,12 @@ class PersonService(BaseService):
         """Найти объект(ы) по ключевому слову"""
 
         q = kwargs.get('q')
-        data = await self._check_cache(url)
+        data = await self.cache.check_cache(url)
         if not data:
             data = await self._get_data_from_elastic(page=page, size=size, q=q)
             if not data:
                 return None
-            await self._load_cache(url, data)
+            await self.cache.load_cache(url, data)
 
         return data
 
@@ -119,4 +120,5 @@ def get_person_service(
         redis: Redis = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> PersonService:
-    return PersonService(redis, elastic)
+    cache = RedisCache(redis)
+    return PersonService(cache, elastic)

@@ -10,12 +10,13 @@ from elasticsearch import AsyncElasticsearch, exceptions
 from fastapi import Depends
 from models.film import Film
 
-from services.base import BaseService
+from services.base import BaseService, BaseCache
+from services.cache import RedisCache
 
 
 class FilmService(BaseService):
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
+    def __init__(self, cache: BaseCache, elastic: AsyncElasticsearch):
+        self.cache = cache
         self.elastic = elastic
 
     async def get_by_id(self,
@@ -23,13 +24,13 @@ class FilmService(BaseService):
                         film_id: str
                         ) -> Optional[Dict]:
         """Функция получения фильма по id"""
-        film = await self._check_cache(url)
+        film = await self.cache.check_cache(url)
         if not film:
             film = await self._get_data_from_elastic(data_id=film_id)
             if not film:
                 return None
 
-            await self._load_cache(url, film)
+            await self.cache.load_cache(url, film)
 
         return film
 
@@ -44,13 +45,13 @@ class FilmService(BaseService):
                              ) -> Optional[List[Dict]]:
         """Функция получения фильмов по id"""
 
-        data = await self._check_cache(url)
+        data = await self.cache.check_cache(url)
         if not data:
             data = await self._get_data_with_list_film(film_ids=film_ids, page=page, size=size)
             if not data:
                 return None
 
-            await self._load_cache(url, data)
+            await self.cache.load_cache(url, data)
 
         return data
 
@@ -108,7 +109,6 @@ class FilmService(BaseService):
             query = {'size': size, 'from': (page - 1) * size}
 
             if order:
-
                 query['sort'] = {
                     "imdb_rating": {
                         "order": order
@@ -185,7 +185,7 @@ class FilmService(BaseService):
                            query: str = None
                            ) -> Optional[List[Film]]:
         """Функция получения всех фильмов с параметрами сортфировки и фильтрации"""
-        films = await self._check_cache(url)
+        films = await self.cache.check_cache(url)
         if not films:
 
             films = await self._get_data_from_elastic(
@@ -193,7 +193,7 @@ class FilmService(BaseService):
             if not films:
                 return None
 
-            await self._load_cache(url, films)
+            await self.cache.load_cache(url, films)
 
         return films
 
@@ -203,4 +203,5 @@ def get_film_service(
         redis: Redis = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> FilmService:
-    return FilmService(redis, elastic)
+    cache = RedisCache(redis=redis)
+    return FilmService(cache, elastic)

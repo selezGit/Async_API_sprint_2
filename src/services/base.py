@@ -1,12 +1,10 @@
-
 import abc
 import json
 from typing import Any, Optional
 import backoff
 
 
-class BaseService:
-    FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
+class BaseService:  # 5 минут
 
     @abc.abstractmethod
     async def get_by_id(self, *args, **kwargs) -> Any:
@@ -37,7 +35,6 @@ class BaseService:
     async def _check_cache(self,
                            url: str,
                            ) -> Optional[Any]:
-
         """Найти обьекты в кэше."""
         result = await self.redis.get(str(url), )
         if result:
@@ -51,3 +48,17 @@ class BaseService:
         """Запись объектов в кэш."""
         data = json.dumps(data)
         await self.redis.set(key=str(url), value=data, expire=self.FILM_CACHE_EXPIRE_IN_SECONDS)
+
+
+class BaseCache:
+    FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
+    @abc.abstractmethod
+    async def load_cache(self, url: str, data: Any):
+        """Запись объектов в кэш."""
+        pass
+
+    @abc.abstractmethod
+    async def check_cache(self,
+                          url: str):
+        """Запись объектов в кэш."""
+        pass
