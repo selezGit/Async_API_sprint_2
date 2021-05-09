@@ -1,12 +1,11 @@
-from elasticsearch import AsyncElasticsearch
 import asyncio
+
 import repackage
+from elasticsearch import AsyncElasticsearch
 
 repackage.up()
 
-from settings import TestSettings 
-
-SETTINGS = TestSettings()
+from settings import SETTINGS, logger
 
 
 async def wait_es():
@@ -14,10 +13,10 @@ async def wait_es():
     response = await client.ping()
     while not response:
         await asyncio.sleep(2)
-        print('Elastic is unavailable - sleeping')
+        logger.info('Elastic is unavailable - sleeping')
         response = await client.ping()
     await client.close()
-    print("Elastic is run!")
+    logger.info("Elastic is run!")
 
 
 if __name__ == '__main__':
