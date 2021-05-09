@@ -2,9 +2,10 @@ version: '3.3'
 services:
   back:
     build: 
-      context: ./src
+      context: ./
     volumes:
       - ./src:/usr/src/app
+      - ./tests/usr/src/tests
     ports:
       - 8000:8000
     depends_on: 
@@ -12,6 +13,8 @@ services:
       - elasticsearch
     networks:
       - redis
+    entrypoint: ["/usr/src/app/entrypoint.sh"]
+    command: "uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
   db:
     image: postgres:12.0-alpine
     env_file:

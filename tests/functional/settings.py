@@ -13,6 +13,7 @@ def singleton(class_):
 
 @singleton
 class TestSettings(BaseSettings):
+    back_host: str = Field('http://back:8000', env='FASTAPI_HOST')
     es_host: str = Field('elasticsearch:9200', env='ELASTIC_HOST')
     redis_host: list = Field(["redis://redis-node-0",
                               "redis://redis-node-1",

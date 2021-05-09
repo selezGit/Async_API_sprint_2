@@ -2,7 +2,7 @@ import abc
 from typing import Any
 
 
-class BaseService:  # 5 минут
+class BaseService:
     @abc.abstractmethod
     async def get_by_id(self, *args, **kwargs) -> Any:
         """Получить объект по uuid"""

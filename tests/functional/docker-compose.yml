@@ -1,0 +1,90 @@
+version: '3.3'
+services:
+  back:
+    container_name: back-test
+    image: fastapi-backend
+    build:
+      context: ../../
+    volumes:
+      - ../../src:/usr/src/app
+      - ../../tests:/usr/src/tests
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+      - elasticsearch
+    networks:
+      - redis
+    entrypoint: ["/usr/src/app/entrypoint.sh"]
+    command: "uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
+
+  tests:
+    container_name: func-tests
+    image: fastapi-backend
+    volumes:
+      - ../../tests:/usr/src/tests
+    entrypoint: >
+      sh -c "pip install -r /usr/src/tests/functional/requirements.txt
+      && python3 /usr/src/tests/functional/utils/wait_for_es.py
+      && python3 /usr/src/tests/functional/utils/wait_for_redis.py
+      && pytest /usr/src/tests/functional/src"
+
+    depends_on:
+      - db
+      - elasticsearch
+      - back
+    networks:
+      - redis
+  db:
+    image: postgres:12.0-alpine
+    env_file:
+      - ../../.env
+    ports:
+      - 5432:5432
+    volumes:
+      - ./../../src/create_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+    networks:
+      - redis
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+    container_name: elasticsearch
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    user: "1000"
+
+    ports:
+      - 9200:9200
+    restart: always
+
+    networks:
+      - redis
+
+  executable:
+    container_name: etl_executable_back
+    build:
+      context: ../../
+      dockerfile: ./etl/Dockerfile
+    env_file:
+      - ../../.env
+    environment:
+        - REDIS_HOST=redis
+        - RUN_ONCE=0
+    restart: always
+    tty: true
+    volumes:
+      - ../../etl/__init__.py:/etl.py
+    command: sleep infinity
+    depends_on:
+      - db
+      - elasticsearch
+    networks:
+      - redis
+
+
+
+networks:
+  redis:
+    external:
+      name: redis
