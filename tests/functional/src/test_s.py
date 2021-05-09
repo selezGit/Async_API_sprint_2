@@ -2,7 +2,6 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_search_detailed(prepare_es_film, make_get_request):
-    # data = 
     # Выполнение запроса
     response = await make_get_request('/film', {'query': 'abracadabra'})
     # Проверка результата
