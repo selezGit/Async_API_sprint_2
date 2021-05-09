@@ -1,15 +1,21 @@
 import aiohttp
 import aioredis_cluster
 import pytest
-from elasticsearch import AsyncElasticsearch
-
-from testdata.models import HTTPResponse
-
+from elasticsearch import AsyncElasticsearch, helpers
+from typing import List
 from settings import TestSettings
+from testdata.models import HTTPResponse
+from utils.bulk_helper import generate_doc, delete_doc
+import logging
+
+
 
 SERVICE_URL = 'http://127.0.0.1:8000'
 
 SETTINGS = TestSettings()
+
+logger = logging.getLogger("TESTS")
+logger.setLevel("DEBUG")
 
 
 @pytest.fixture(scope='session')
@@ -45,3 +51,28 @@ async def make_get_request(session):
                 status=response.status,
             )
     return inner
+
+@pytest.fixture(scope='function')
+async def prepare_es_film(es_client):
+    index = 'movies'
+    data = [{'id': '3a5f9a83-4b74-48be-a44e-a6c8beee9460',
+        'title': 'abracadabra',
+            'description': '',
+            'imdb_rating': 0,
+            'creation_date': '1970-01-01T00:00:00',
+            'restriction': 0,
+            'directors': [],
+            'actors': [],
+            'writers': [],
+            'genres': [],
+            'file_path': ''}]
+
+    await helpers.async_bulk(es_client, generate_doc(data, index))
+    logger.info('data is uploaded')
+
+    yield data
+
+    await helpers.async_bulk(es_client, delete_doc(data, index))
+    logger.info('data is deleted')
+
+    
