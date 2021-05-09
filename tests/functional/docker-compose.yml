@@ -22,7 +22,6 @@ services:
     container_name: func-tests
     image: fastapi-backend
     volumes:
-      - ../../src:/usr/src/app
       - ../../tests:/usr/src/tests
     entrypoint: >
       sh -c "pip install -r /usr/src/tests/functional/requirements.txt
