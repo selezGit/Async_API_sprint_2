@@ -133,5 +133,5 @@ dmypy.json
 # vscode
 .vscode
 
-./tests/functional/.pg-data-test
-./tests/functional/.es-data-test
+./tests/functional/.pg-data-test/*
+./tests/functional/.es-data-test/*
