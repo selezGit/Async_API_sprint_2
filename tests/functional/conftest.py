@@ -14,14 +14,14 @@ SETTINGS = TestSettings()
 
 @pytest.fixture(scope='session')
 async def es_client():
-    client = AsyncElasticsearch(SETTINGS.es_host)
+    client = AsyncElasticsearch(hosts=["localhost:9200"])
     yield client
     await client.close()
 
 
 @pytest.fixture(scope='session')
 async def session():
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=False) as session:
         yield session
     await session.close()
 
