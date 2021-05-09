@@ -1,14 +1,11 @@
-import logging
 from functools import lru_cache
 from typing import List, Optional, Dict
 
-import backoff
 from aioredis import Redis
 from db.elastic import get_elastic
 from db.redis import get_redis
-from elasticsearch import AsyncElasticsearch, exceptions
+from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
-from models.person import Person
 
 from services.base import BaseService
 from cache.base import BaseCache

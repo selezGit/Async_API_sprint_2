@@ -1,12 +1,11 @@
-from typing import List, Dict, Optional
 import abc
+import logging
+from typing import Dict, List, Optional
+
+import backoff
 from elasticsearch import AsyncElasticsearch, exceptions
 
 from storage.base import BaseStorage
-
-import backoff
-
-import logging
 
 
 class GenreBaseStorage(BaseStorage):
@@ -33,6 +32,7 @@ class GenreElasticStorage(GenreBaseStorage):
         except exceptions.NotFoundError:
             return None
 
+    @backoff.on_exception(backoff.expo, Exception)
     async def get_multi(
             self, page: int, size: int) -> List[Optional[Dict]]:
         try:

@@ -1,20 +1,18 @@
-import logging
+import abc
 from functools import lru_cache
 from typing import Dict, List, Optional
-import abc
-import backoff
+
 from aioredis import Redis
+from cache.base import BaseCache
+from cache.redis_cache import RedisCache
 from db.elastic import get_elastic
 from db.redis import get_redis
 from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 from models.film import Film
+from storage.film import FilmBaseStorage, FilmElasticStorage
 
 from services.base import BaseService
-from cache.base import BaseCache
-from cache.redis_cache import RedisCache
-
-from storage.film import FilmBaseStorage, FilmElasticStorage
 
 
 class FilmBaseService(BaseService):
@@ -46,15 +44,13 @@ class FilmService(FilmBaseService):
 
     async def get_by_id(self, url: str, id: str) -> Optional[Dict]:
         """Функция получения фильма по id"""
-        film = await self.cache.check_cache(url)
-        if not film:
-            film = await self.storage.get(id=id)
-            if not film:
+        data = await self.cache.check_cache(url)
+        if not data:
+            data = await self.storage.get(id=id)
+            if not data:
                 return None
-
-            await self.cache.load_cache(url, film)
-
-        return film
+            await self.cache.load_cache(url, data)
+        return data
 
     async def get_by_list_id(
         self,
@@ -84,15 +80,14 @@ class FilmService(FilmBaseService):
         query: str = None,
     ) -> List[Optional[Film]]:
         """Функция получения всех фильмов с параметрами сортфировки и фильтрации"""
-        films = await self.cache.check_cache(url)
-        if not films:
-
-            films = await self.storage.get_multi(
+        data = await self.cache.check_cache(url)
+        if not data:
+            data = await self.storage.get_multi(
                 page=page, size=size, order=order, genre=genre, q=query
             )
-            if films:
-                await self.cache.load_cache(url, films)
-        return films
+            if data:
+                await self.cache.load_cache(url, data)
+        return data
 
 
 @lru_cache()

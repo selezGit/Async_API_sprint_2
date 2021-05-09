@@ -1,19 +1,16 @@
-import logging
 from functools import lru_cache
 from typing import Dict, List, Optional
 
-import backoff
 from aioredis import Redis
-from db.elastic import get_elastic
-from db.redis import get_redis
-from elasticsearch import AsyncElasticsearch, exceptions
-from fastapi import Depends
-from models.genre import Genre
-
-from services.base import BaseService
 from cache.base import BaseCache
 from cache.redis_cache import RedisCache
+from db.elastic import get_elastic
+from db.redis import get_redis
+from elasticsearch import AsyncElasticsearch
+from fastapi import Depends
 from storage.genre import GenreBaseStorage, GenreElasticStorage
+
+from services.base import BaseService
 
 
 class GenreBaseService(BaseService):
