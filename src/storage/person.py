@@ -1,12 +1,11 @@
-from typing import List, Dict, Optional
 import abc
+import logging
+from typing import Dict, List, Optional
+
+import backoff
 from elasticsearch import AsyncElasticsearch, exceptions
 
 from storage.base import BaseStorage
-
-import backoff
-
-import logging
 
 
 class PersonBaseStorage(BaseStorage):

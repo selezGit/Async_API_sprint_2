@@ -14,15 +14,15 @@ SETTINGS = TestSettings()
 
 @pytest.fixture(scope='session')
 async def es_client():
-    client = AsyncElasticsearch(SETTINGS.es_host)
+    client = AsyncElasticsearch(hosts=["localhost:9200"])
     yield client
     await client.close()
 
 
 @pytest.fixture(scope='session')
 async def session():
-    session = await aiohttp.ClientSession()
-    yield session
+    async with aiohttp.ClientSession(trust_env=False) as session:
+        yield session
     await session.close()
 
 
@@ -32,9 +32,8 @@ async def redis_client():
     yield client
     await client.close()
 
-
 @pytest.fixture
-def make_get_request(session):
+async def make_get_request(session):
     async def inner(method: str, params: dict = None) -> HTTPResponse:
         params = params or {}
         # в боевых системах старайтесь так не делать!
