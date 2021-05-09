@@ -43,7 +43,6 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./.pg-data-test:/var/lib/postgresql/data/
       - ./../../src/create_schema.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
     networks:
@@ -55,8 +54,7 @@ services:
       - xpack.security.enabled=false
       - discovery.type=single-node
     user: "1000"
-    volumes:
-      - ./.es-data:/usr/share/elasticsearch/data
+
     ports:
       - 9200:9200
     restart: always
