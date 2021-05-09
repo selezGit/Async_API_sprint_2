@@ -1,9 +1,16 @@
 from elasticsearch import AsyncElasticsearch
 import asyncio
+import repackage
+
+repackage.up()
+
+from settings import TestSettings 
+
+SETTINGS = TestSettings()
 
 
 async def wait_es():
-    client = AsyncElasticsearch(hosts=["http://elasticsearch:9200", ])
+    client = AsyncElasticsearch(hosts=[SETTINGS.es_host, ])
     response = await client.ping()
     while not response:
         await asyncio.sleep(2)
