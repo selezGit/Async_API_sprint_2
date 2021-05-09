@@ -1,22 +1,16 @@
 import asyncio
-import logging
-from typing import List
 
 import aiohttp
 import aioredis_cluster
 import pytest
 from elasticsearch import AsyncElasticsearch, helpers
 
-from settings import TestSettings
+from settings import SETTINGS, logger
 from testdata.models import HTTPResponse
 from utils.bulk_helper import delete_doc, generate_doc
+from utils.wait_for_es import wait_es
 
 SERVICE_URL = 'http://127.0.0.1:8000'
-
-SETTINGS = TestSettings()
-
-logger = logging.getLogger("TESTS")
-logger.setLevel("DEBUG")
 
 
 @pytest.fixture(scope='session')
@@ -69,11 +63,12 @@ async def prepare_es_film(es_client):
              'writers': [],
              'genres': [],
              'file_path': ''}]
+    await wait_es()
 
     await helpers.async_bulk(es_client, generate_doc(data, index))
     logger.info('data is uploaded')
-    # ждём пол секунды, что бы данные успели загрузиться в elastic
-    await asyncio.sleep(0.5)
+    # ждём секунду, что бы данные успели загрузиться в elastic
+    await asyncio.sleep(1)
 
     yield data
 
