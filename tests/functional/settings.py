@@ -1,5 +1,6 @@
 from pydantic import BaseSettings, Field
 import logging
+from typing import Any
 
 logger = logging.getLogger('tests')
 logging.getLogger("elasticsearch").setLevel(logging.CRITICAL)
@@ -20,13 +21,7 @@ def singleton(class_):
 class TestSettings(BaseSettings):
     back_host: str = Field('http://back:8000', env='FASTAPI_HOST')
     es_host: str = Field('elasticsearch:9200', env='ELASTIC_HOST')
-    redis_host: list = Field(['redis://redis-node-0',
-                              'redis://redis-node-1',
-                              'redis://redis-node-2',
-                              'redis://redis-node-3',
-                              'redis://redis-node-4',
-                              'redis://redis-node-5',
-                              ], env='REDIS_HOST')
+    redis_host: str = Field('redis://redis-node-0', env='REDIS_HOST')
 
 
 SETTINGS = TestSettings()
