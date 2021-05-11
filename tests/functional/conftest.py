@@ -13,21 +13,21 @@ from utils.wait_for_es import wait_es
 SERVICE_URL = 'http://127.0.0.1:8000'
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 async def es_client():
     client = AsyncElasticsearch(hosts=[SETTINGS.es_host, ])
     yield client
     await client.close()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 async def session():
     async with aiohttp.ClientSession() as session:
         yield session
     await session.close()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 async def redis_client():
     client = await aioredis_cluster.create_redis_cluster(SETTINGS.redis_host)
     yield client
@@ -46,6 +46,7 @@ async def make_get_request(session):
                 headers=response.headers,
                 status=response.status,
             )
+
     return inner
 
 
@@ -54,7 +55,7 @@ async def prepare_es_film(es_client):
     index = 'movies'
     data = [{'id': '3a5f9a83-4b74-48be-a44e-a6c8beee9460',
              'title': 'abracadabra',
-            'description': '',
+             'description': '',
              'imdb_rating': 0,
              'creation_date': '1970-01-01T00:00:00',
              'restriction': 0,
@@ -63,6 +64,24 @@ async def prepare_es_film(es_client):
              'writers': [],
              'genres': [],
              'file_path': ''}]
+    await wait_es()
+
+    await helpers.async_bulk(es_client, generate_doc(data, index))
+    logger.info('data is uploaded')
+    # ждём секунду, что бы данные успели загрузиться в elastic
+    await asyncio.sleep(1)
+
+    yield data
+
+    await helpers.async_bulk(es_client, delete_doc(data, index))
+    logger.info('data is deleted')
+
+
+@pytest.fixture(scope='function')
+async def prepare_es_genre(es_client):
+    index = 'genre'
+    data = [{'id': 'e91db2b1-d967-4785-bec9-1eade1d56243',
+             'name': 'Test genre'}]
     await wait_es()
 
     await helpers.async_bulk(es_client, generate_doc(data, index))
