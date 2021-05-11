@@ -5,6 +5,7 @@ import aioredis_cluster
 import pytest
 from elasticsearch import AsyncElasticsearch, helpers, exceptions
 
+
 from settings import SETTINGS, logger
 from testdata.models import HTTPResponse
 from utils.bulk_helper import delete_doc, generate_doc
@@ -31,8 +32,7 @@ async def session():
 @pytest.fixture(scope='function')
 async def redis_client():
     client = await aioredis_cluster.create_redis_cluster([SETTINGS.redis_host])
-    client.flushdb()
-    yield
+    yield client
     await client.close()
 
 
