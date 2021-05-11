@@ -13,7 +13,7 @@ services:
     networks:
       - redis
     ports:
-      - '6379:6379'
+      - '127.0.0.1:6379:6379'
     environment:
       - 'ALLOW_EMPTY_PASSWORD=yes'
       - 'REDIS_PORT=6379'
@@ -26,7 +26,7 @@ services:
     networks:
       - redis
     ports:
-      - '6380:6379'
+      - '127.0.0.1:6380:6379'
     environment:
       - 'ALLOW_EMPTY_PASSWORD=yes'
       - 'REDIS_PORT=6379'
@@ -39,7 +39,7 @@ services:
     networks:
       - redis
     ports:
-      - '6381:6379'
+      - '127.0.0.1:6381:6379'
     environment:
       - 'ALLOW_EMPTY_PASSWORD=yes'
       - 'REDIS_PORT=6379'
@@ -52,7 +52,7 @@ services:
     networks:
       - redis
     ports:
-      - '6382:6379'
+      - '127.0.0.1:6382:6379'
     environment:
       - 'ALLOW_EMPTY_PASSWORD=yes'
       - 'REDIS_PORT=6379'
@@ -65,7 +65,7 @@ services:
     networks:
       - redis
     ports:
-      - '6383:6379'
+      - '127.0.0.1:6383:6379'
     environment:
       - 'ALLOW_EMPTY_PASSWORD=yes'
       - 'REDIS_PORT=6379'
@@ -78,7 +78,7 @@ services:
     networks:
       - redis
     ports:
-      - '6384:6379'
+      - '127.0.0.1:6384:6379'
     environment:
       - 'ALLOW_EMPTY_PASSWORD=yes'
       - 'REDIS_PORT=6379'
