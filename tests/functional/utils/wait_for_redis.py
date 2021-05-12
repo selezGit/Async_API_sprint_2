@@ -7,7 +7,7 @@ repackage.up()
 from settings import SETTINGS, logger
 
 async def wait_redis():
-    client = await aioredis_cluster.create_redis_cluster(SETTINGS.redis_host)
+    client = await aioredis_cluster.create_redis_cluster([SETTINGS.redis_host])
     response = await client.ping()
     while not response:
         await asyncio.sleep(2)
