@@ -16,8 +16,6 @@ async def test_genre_all_valid_data(prepare_es_genre, make_get_request):
 @pytest.mark.asyncio
 async def test_genre_all_not_valid_params(prepare_es_genre, make_get_request):
     # Выполнение запроса
-    response = await make_get_request('/genre', {'page': 101})
-    assert response.status == 422, 'too large page validator, status must be 422'
 
     response = await make_get_request('/genre', {'page': 0})
     assert response.status == 422, 'too small page validator, status must be 422'
