@@ -1,16 +1,15 @@
 import asyncio
+from typing import Any
 
 import aiohttp
 import aioredis_cluster
 import pytest
-from elasticsearch import AsyncElasticsearch, helpers, exceptions
-
+from elasticsearch import AsyncElasticsearch, exceptions, helpers
 
 from settings import SETTINGS, logger
 from testdata.models import HTTPResponse
 from utils.bulk_helper import delete_doc, generate_doc
 from utils.wait_for_es import wait_es
-from typing import Any
 
 SERVICE_URL = 'http://127.0.0.1:8000'
 

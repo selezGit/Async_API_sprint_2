@@ -7,6 +7,8 @@ from models.film import Film, FilmShort
 from services.film import FilmService, get_film_service
 
 from api.v1.base_view import BaseView
+from pydantic import UUID4
+
 
 router = APIRouter()
 
@@ -22,7 +24,7 @@ class FilmView(BaseView):
     )
     async def get_all(
         order: Optional[Order] = Order.desc,
-        genre: Optional[str] = None,
+        genre: Optional[UUID4] = None,
         size: Optional[int] = Query(50, gt=0, le=2000),
         page: Optional[int] = Query(1 , gt=0, le=100),
         query: Optional[str] = None,
@@ -44,7 +46,7 @@ class FilmView(BaseView):
 
     @router.get("/{film_id}", response_model=Film, summary="Фильм")
     async def get_details(
-        film_id: str,
+        film_id: UUID4,
         request: Request = None,
         film_service: FilmService = Depends(get_film_service),
     ) -> Film:

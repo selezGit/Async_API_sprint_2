@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_get_all_films(make_get_request, get_all_data_elastic):
+async def test_get_all_films(prepare_es_film, make_get_request, get_all_data_elastic):
     """Вывести все фильмы"""
 
     # получаем все фильмы из elasticsearch
@@ -49,10 +49,10 @@ async def test_validator(make_get_request):
     assert response.status == 200, 'empty parametr validator, status must be 200'
 
     response = await make_get_request('/film/wrong-uuid')
-    assert response.status == 404, 'wrong uuid validator, status must be 404'
+    assert response.status == 422, 'wrong uuid validator, status must be 422'
 
     response = await make_get_request('/film', {'genre': 'wrong-uuid'})
-    assert response.status == 404, 'wrong genre uuid validator, status must be 404'
+    assert response.status == 422, 'wrong genre uuid validator, status must be 422'
 
     response = await make_get_request('/film', {'page': 101})
     assert response.status == 422, 'too large page validator, status must be 422'
