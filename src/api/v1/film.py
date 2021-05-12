@@ -2,7 +2,7 @@ from enum import Enum
 from http import HTTPStatus
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from models.film import Film, FilmShort
 from services.film import FilmService, get_film_service
 
@@ -23,8 +23,8 @@ class FilmView(BaseView):
     async def get_all(
         order: Optional[Order] = Order.desc,
         genre: Optional[str] = None,
-        size: Optional[int] = 50,
-        page: Optional[int] = 1,
+        size: Optional[int] = Query(50, gt=0, le=2000),
+        page: Optional[int] = Query(1 , gt=0, le=100),
         query: Optional[str] = None,
         request: Request = None,
         film_service: FilmService = Depends(get_film_service),
