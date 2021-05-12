@@ -19,7 +19,7 @@ class Genre(BaseModel):
 class GenreView(BaseView):
     @router.get("/", response_model=List[Genre], summary="Список жанров")
     async def get_all(
-            size: Optional[int] = Query(default=50, ge=1),
+            size: Optional[int] = Query(default=50, ge=1, le=500),
             page: Optional[int] = Query(default=1, ge=1),
             request: Request = None,
             genre_service: GenreService = Depends(get_genre_service),
