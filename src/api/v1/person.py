@@ -6,7 +6,7 @@ from models.person import Person
 from models.film import FilmShort
 from services.film import FilmService, get_film_service
 from services.person import PersonService, get_person_service
-from pydantic import BaseModel, UUID4
+from pydantic import UUID4
 
 from api.v1.base_view import BaseView
 
@@ -35,8 +35,8 @@ class PersonView(BaseView):
     )
     async def films_with_person(
             person_id: UUID4,
-            size: Optional[int] = 50,
-            page: Optional[int] = 1,
+            size: Optional[int] = Query(default=50, ge=1, le=10000),
+            page: Optional[int] = Query(default=1, ge=1, le=100),
             request: Request = None,
             person_service: PersonService = Depends(get_person_service),
             film_service: FilmService = Depends(get_film_service),
@@ -63,8 +63,8 @@ class PersonView(BaseView):
     @router.get("/", response_model=List[Person], summary="Список персон")
     async def get_all(
             query: Optional[str] = None,
-            size: Optional[int] = Query(default=50, ge=1),
-            page: Optional[int] = Query(default=1, ge=1),
+            size: Optional[int] = Query(default=50, ge=1, le=10000),
+            page: Optional[int] = Query(default=1, ge=1, le=100),
             request: Request = None,
             person_service: PersonService = Depends(get_person_service),
     ):

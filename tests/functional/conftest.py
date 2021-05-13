@@ -68,14 +68,17 @@ async def prepare_es_film(es_client, redis_client):
              'creation_date': '1970-01-01T00:00:00',
              'restriction': 0,
              'directors': [],
-             'actors': [],
+             'actors': [{
+                 'id': '7f489c61-1a21-43d2-a3ad-3d900f8a9b5e',
+                 'name': 'Test Testovich'
+             }],
              'writers': [],
              'genres': [],
              'file_path': ''}]
     await wait_es()
 
     await helpers.async_bulk(es_client, generate_doc(data, index))
-    logger.info('data is uploaded')
+    logger.info('movie is uploaded')
     # ждём секунду, что бы данные успели загрузиться в elastic
     await asyncio.sleep(1)
 
@@ -85,7 +88,7 @@ async def prepare_es_film(es_client, redis_client):
     await redis_client.flushdb()
     # удаляем загруженные в elastic данные
     await helpers.async_bulk(es_client, delete_doc(data, index))
-    logger.info('data is deleted')
+    logger.info('movie is deleted')
 
 
 @pytest.fixture(scope='function')
@@ -96,15 +99,34 @@ async def prepare_es_genre(es_client):
     await wait_es()
 
     await helpers.async_bulk(es_client, generate_doc(data, index))
-    logger.info('data is uploaded')
+    logger.info('genre is uploaded')
     # ждём секунду, что бы данные успели загрузиться в elastic
     await asyncio.sleep(1)
 
     yield data
 
     await helpers.async_bulk(es_client, delete_doc(data, index))
-    logger.info('data is deleted')
+    logger.info('genre is deleted')
 
+
+@pytest.fixture(scope='function')
+async def prepare_es_person(es_client):
+    index = 'persons'
+    data = [{'id': '7f489c61-1a21-43d2-a3ad-3d900f8a9b5e',
+            'full_name': 'Test Testovich',
+            'role': ['actor'],
+            'film_ids': ['3a5f9a83-4b74-48be-a44e-a6c8beee9460']}]
+    await wait_es()
+
+    await helpers.async_bulk(es_client, generate_doc(data, index))
+    logger.info('person is uploaded')
+    # ждём секунду, что бы данные успели загрузиться в elastic
+    await asyncio.sleep(1)
+
+    yield data
+
+    await helpers.async_bulk(es_client, delete_doc(data, index))
+    logger.info('person is deleted')
 
 @pytest.fixture
 async def get_all_data_elastic(es_client):
