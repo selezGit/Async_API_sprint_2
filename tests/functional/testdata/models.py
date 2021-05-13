@@ -9,3 +9,4 @@ class HTTPResponse:
     headers: CIMultiDictProxy[str]
     status: int
     url: str
+    resp_speed: int

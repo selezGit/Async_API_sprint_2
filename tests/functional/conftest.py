@@ -1,9 +1,10 @@
 import asyncio
+import time
 from typing import Any
 
 import aiohttp
-import pytest
 import aioredis
+import pytest
 from elasticsearch import AsyncElasticsearch, exceptions, helpers
 
 from settings import SETTINGS, logger
@@ -34,19 +35,25 @@ async def redis_client():
     yield client
     client.close()
 
+
 @pytest.fixture
-async def make_get_request(session):
-    async def inner(method: str, params: dict = None) -> HTTPResponse:
+async def make_get_request(session, redis_client):
+    async def inner(method: str, params: dict = None, cleaning_redis: bool = True) -> HTTPResponse:
         params = params or {}
         # в боевых системах старайтесь так не делать!
         url = SETTINGS.back_host + '/api/v1' + method
+        start = time.time()
         async with session.get(url, params=params) as response:
+            #  очищаем кэш redis
+            if cleaning_redis:
+                await redis_client.delete(str(response.url))
+
             return HTTPResponse(
                 body=await response.json(),
                 headers=response.headers,
                 status=response.status,
                 url=response.url,
-            )
+                resp_speed=(time.time()-start))
 
     return inner
 
