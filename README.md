@@ -7,7 +7,7 @@
 - Код приложения пишется на **Python + FastAPI**.
 - Приложение запускается под управлением сервера **ASGI**(uvicorn).
 - Хранилище – **ElasticSearch**.
-- За кеширование данных отвечает – **redis cluster**.
+- За кеширование данных отвечает – **redis**.
 - Все компоненты системы запускаются через **docker**.
 
 
@@ -20,11 +20,7 @@
         && chmod g+rwx .es-data .pg-data \
         && chgrp 1000 .es-data .pg-data
 
-2. Создать network `redis` в докере.
-
-        $ docker network create redis
-
-3. Отредактировать файл .env (на этот раз залил в гит) можно вбить свои настройки или оставить как есть.
+2. Отредактировать файл .env (на этот раз залил в гит) можно вбить свои настройки или оставить как есть.
 
 **[ Postgresql ]**
 ```
@@ -51,16 +47,36 @@ REDIS_HOST=redis
 
 ## Запуск
 
-Для запуска докер контейнеров я использовал 2 файла, в одном все сервисы кроме редиса, во втором всё что относится к кластеру редис, в корне проекта выполняем:
+Для запуска контейнеров в корне проекта выполняем:
 
 Билд + запуск:
 
-    $ sudo docker-compose -f docker-compose.yml -f compose-redis-cluster.yml up -d --build
+    $ sudo docker-compose -f docker-compose.yml up -d --build
 
 Только запуск:
 
-    $ sudo docker-compose -f docker-compose.yml -f compose-redis-cluster.yml up --d
+    $ sudo docker-compose -f docker-compose.yml up --d
 
 Остановка:
 
-    $ sudo docker-compose -f docker-compose.yml -f compose-redis-cluster.yml down
+    $ sudo docker-compose -f docker-compose.yml down
+
+
+## Тесты
+
+Для запуска тестов локально, потребуется добавить локальные переменные:
+
+```
+export ELASTIC_HOST=localhost:9200
+export FASTAPI_HOST=http://localhost:8000
+export REDIS_HOST=localhost
+export REDIS_PORT=6379
+```
+
+А так же установить все необходимые библиотеки на локальную машину:
+
+```
+pip install -r tests/functional/requirements.txt
+```
+
+Больше информации [тут](./tests/functional/README.md)

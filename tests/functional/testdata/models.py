@@ -8,3 +8,4 @@ class HTTPResponse:
     body: dict
     headers: CIMultiDictProxy[str]
     status: int
+    url: str

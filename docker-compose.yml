@@ -11,8 +11,7 @@ services:
     depends_on: 
       - db
       - elasticsearch
-    networks:
-      - redis
+
     entrypoint: ["/usr/src/app/entrypoint.sh"]
     command: "uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
   db:
@@ -25,8 +24,7 @@ services:
       - ./.pg-data:/var/lib/postgresql/data/
       - ./src/create_schema.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
-    networks:
-      - redis
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
     container_name: elasticsearch
@@ -40,8 +38,6 @@ services:
       - 9200:9200
     restart: always
 
-    networks:
-      - redis
   kibana:
     image: docker.elastic.co/kibana/kibana:7.7.0
     ports:
@@ -50,8 +46,6 @@ services:
       - elasticsearch
     env_file:
       - ./.env
-    networks:
-      - redis
 
   executable:
     container_name: etl_executable_back
@@ -61,7 +55,6 @@ services:
     env_file:
       - ./.env
     environment:
-        - REDIS_HOST=redis
         - RUN_ONCE=0
     restart: always
     tty: true
@@ -71,8 +64,6 @@ services:
     depends_on:
       - db
       - elasticsearch
-    networks:
-      - redis
 
   pgadmin:
     container_name: pgadmin-back
@@ -86,11 +77,16 @@ services:
     restart: unless-stopped
     depends_on:
       - db
-    networks:
-      - redis
-
-
-networks:
   redis:
-    external:
-      name: redis
+    container_name: redis
+    image: redis:6
+    restart: always
+    volumes:
+      - redisdata:/data
+    ports:
+      - "6379:6379"
+
+
+  
+volumes:
+  redisdata:

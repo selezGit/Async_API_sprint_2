@@ -1,10 +1,14 @@
+## Функциональные тесты
+
+После каждого теста фикстура удаляет кэш redis
+
 ## Запуск
 
 Для запуска тестов подходят следующие команды:
 
 Билд + запуск:
 
-    $ sudo docker-compose -f docker-compose.yml -f ../../compose-redis-cluster.yml up -d --build
+    $ sudo docker-compose -f docker-compose.yml  up -d --build
 
 Только запуск:
 
@@ -12,5 +16,5 @@
 
 Остановка:
 
-    $ sudo docker-compose -f docker-compose.yml -f ../../compose-redis-cluster.yml down
+    $ sudo docker-compose -f docker-compose.yml down
    

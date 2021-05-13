@@ -1,6 +1,6 @@
 import logging
 
-import aioredis_cluster
+import aioredis
 import uvicorn as uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
@@ -30,7 +30,9 @@ async def startup():
     # Подключаемся к базам при старте сервера
     # Подключиться можем при работающем event-loop
     # Поэтому логика подключения происходит в асинхронной функции
-    redis.redis = await aioredis_cluster.create_redis_cluster(config.REDIS_HOST)
+    # redis.redis = await aioredis_cluster.create_redis_cluster(config.REDIS_HOST)
+
+    redis.redis = await aioredis.create_redis_pool((config.REDIS_HOST, config.REDIS_PORT), minsize=10, maxsize=20)
 
     elastic.es = AsyncElasticsearch(
         hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])

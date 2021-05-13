@@ -1,5 +1,4 @@
 aiohttp==3.7.2
-aioredis-cluster==1.5.2
 aioredis==1.3.1
 backoff==1.10.0
 elasticsearch-async==6.2.0

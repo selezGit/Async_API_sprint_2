@@ -2,8 +2,8 @@ import asyncio
 from typing import Any
 
 import aiohttp
-import aioredis_cluster
 import pytest
+import aioredis
 from elasticsearch import AsyncElasticsearch, exceptions, helpers
 
 from settings import SETTINGS, logger
@@ -30,10 +30,9 @@ async def session():
 
 @pytest.fixture(scope='function')
 async def redis_client():
-    client = await aioredis_cluster.create_redis_cluster([SETTINGS.redis_host])
+    client = await aioredis.create_redis_pool((SETTINGS.redis_host, SETTINGS.redis_port), minsize=10, maxsize=20)
     yield client
-    await client.close()
-
+    client.close()
 
 @pytest.fixture
 async def make_get_request(session):
@@ -46,13 +45,14 @@ async def make_get_request(session):
                 body=await response.json(),
                 headers=response.headers,
                 status=response.status,
+                url=response.url,
             )
 
     return inner
 
 
 @pytest.fixture(scope='function')
-async def prepare_es_film(es_client):
+async def prepare_es_film(es_client, redis_client):
     index = 'movies'
     data = [{'id': '3a5f9a83-4b74-48be-a44e-a6c8beee9460',
              'title': 'abracadabra',
@@ -74,6 +74,9 @@ async def prepare_es_film(es_client):
 
     yield data
 
+    # удаляем кэш редис
+    await redis_client.flushdb()
+    # удаляем загруженные в elastic данные
     await helpers.async_bulk(es_client, delete_doc(data, index))
     logger.info('data is deleted')
 

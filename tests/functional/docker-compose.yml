@@ -12,8 +12,7 @@ services:
       - 8000:8000
     depends_on:
       - elasticsearch
-    networks:
-      - redis
+
     entrypoint: ["/usr/src/app/entrypoint.sh"]
     command: "uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
 
@@ -31,8 +30,6 @@ services:
     depends_on:
       - elasticsearch
       - back
-    networks:
-      - redis
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
@@ -45,14 +42,16 @@ services:
     ports:
       - 9200:9200
     restart: always
-
-    networks:
-      - redis
-
-
-
-
-networks:
   redis:
-    external:
-      name: redis
+    container_name: redis
+    image: redis:6
+    restart: always
+    volumes:
+      - redisdata:/data
+    ports:
+      - "6379:6379"
+
+
+  
+volumes:
+  redisdata:

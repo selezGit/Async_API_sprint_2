@@ -14,7 +14,6 @@ import psycopg2.extras
 from elasticsearch import Elasticsearch, helpers
 from pydantic import BaseSettings
 from redis import Redis
-from rediscluster import RedisCluster   
 
 logger = logging.getLogger("ETL")
 
@@ -544,15 +543,8 @@ if __name__ == "__main__":
     config = ETLConfig()
 
     db = PostgresDatabase(url=config.db_url)
-    redis = RedisCluster(startup_nodes=[
-        {"host": "redis-node-0", "port": "6379"},
-        {"host": "redis-node-1", "port": "6380"},
-        {"host": "redis-node-2", "port": "6381"},
-        {"host": "redis-node-3", "port": "6382"},
-        {"host": "redis-node-4", "port": "6383"},
-        {"host": "redis-node-5", "port": "6384"}
-    ])
-
+    redis = Redis(host='redis', db=1)
+    
     # если нужно сбросить кэш
     # redis.flushdb()
 
