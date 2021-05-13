@@ -81,12 +81,12 @@ async def test_validator(make_get_request):
     assert response.status == 404, 'search non-existent person validator, status must be 404'
 
     # этот запрос сделан без удаления кэша
-    response = await make_get_request('/person', {}, False)
+    response = await make_get_request('/person', {'page': 1, 'size': 10000}, False)
     assert response.status == 200, 'get all persons without delete cache validator, status must be 200'
 
     # в этом запросе мы получаем результат кэша от первого запроса
     # и сравниваем затраченное время
-    response2 = await make_get_request('/person')
+    response2 = await make_get_request('/person', {'page': 1, 'size': 10000})
     assert response.status == 200, 'get all persons without delete cache, status must be 200'
 
     assert response.resp_speed > response2.resp_speed

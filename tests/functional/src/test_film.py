@@ -8,7 +8,7 @@ async def test_get_all_films(prepare_es_film, make_get_request, get_all_data_ela
     # получаем все фильмы из elasticsearch
     all_films = await get_all_data_elastic('movies')
 
-    response = await make_get_request('/film', {'size': 1000, 'page': 1})
+    response = await make_get_request('/film', {'size': 10000, 'page': 1})
 
     assert response.status == 200
 
@@ -60,7 +60,7 @@ async def test_validator(make_get_request):
     response = await make_get_request('/film', {'page': 0})
     assert response.status == 422, 'too small page validator, status must be 422'
 
-    response = await make_get_request('/film', {'size': 2001})
+    response = await make_get_request('/film', {'size': 10001})
     assert response.status == 422, 'too large size validator, status must be 422'
 
     response = await make_get_request('/film', {'size': 0})
@@ -70,12 +70,12 @@ async def test_validator(make_get_request):
     assert response.status == 404, 'search non-existent movie validator, status must be 404'
 
     # этот запрос сделан без удаления кэша
-    response = await make_get_request('/film', {}, False)
+    response = await make_get_request('/film', {'page': 1, 'size': 10000}, False)
     assert response.status == 200, 'get all movies without delete cache validator, status must be 200'
 
     # в этом запросе мы получаем результат кэша от первого запроса
     # и сравниваем затраченное время
-    response2 = await make_get_request('/film')
+    response2 = await make_get_request('/film', {'page': 1, 'size': 10000})
     assert response.status == 200, 'get all movies without delete cache validator, status must be 200'
 
     assert response.resp_speed > response2.resp_speed

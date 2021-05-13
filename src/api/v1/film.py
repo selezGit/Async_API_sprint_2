@@ -25,7 +25,7 @@ class FilmView(BaseView):
     async def get_all(
         order: Optional[Order] = Order.desc,
         genre: Optional[UUID4] = None,
-        size: Optional[int] = Query(50, gt=0, le=2000),
+        size: Optional[int] = Query(50, gt=0, le=10000),
         page: Optional[int] = Query(1 , gt=0, le=100),
         query: Optional[str] = None,
         request: Request = None,
