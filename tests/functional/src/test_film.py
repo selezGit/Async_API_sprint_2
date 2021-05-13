@@ -69,16 +69,13 @@ async def test_validator(make_get_request):
     response = await make_get_request('/film', {'query': 'MovieNonExists'})
     assert response.status == 404, 'search non-existent movie validator, status must be 404'
 
-
     # этот запрос сделан без удаления кэша
     response = await make_get_request('/film', {}, False)
-    assert response.status == 200, 'search non-existent movie validator, status must be 200'
+    assert response.status == 200, 'get all movies without delete cache validator, status must be 200'
 
     # в этом запросе мы получаем результат кэша от первого запроса
     # и сравниваем затраченное время
     response2 = await make_get_request('/film')
-    assert response.status == 200, 'search non-existent movie validator, status must be 200'
+    assert response.status == 200, 'get all movies without delete cache validator, status must be 200'
 
     assert response.resp_speed > response2.resp_speed
-
-    
