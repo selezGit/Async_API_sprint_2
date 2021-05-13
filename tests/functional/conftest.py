@@ -11,12 +11,14 @@ from settings import SETTINGS, logger
 from testdata.models import HTTPResponse
 from utils.bulk_helper import delete_doc, generate_doc
 from utils.wait_for_es import wait_es
+from utils.wait_for_redis import wait_redis
 
 SERVICE_URL = 'http://127.0.0.1:8000'
 
 
 @pytest.fixture(scope='function')
 async def es_client():
+    await wait_es()
     client = AsyncElasticsearch(hosts=[SETTINGS.es_host, ])
     yield client
     await client.close()
@@ -31,6 +33,7 @@ async def session():
 
 @pytest.fixture(scope='function')
 async def redis_client():
+    await wait_redis()
     client = await aioredis.create_redis_pool((SETTINGS.redis_host, SETTINGS.redis_port), minsize=10, maxsize=20)
     yield client
     client.close()
@@ -59,7 +62,7 @@ async def make_get_request(session, redis_client):
 
 
 @pytest.fixture(scope='function')
-async def prepare_es_film(es_client, redis_client):
+async def prepare_es_film(es_client):
     index = 'movies'
     data = [{'id': '3a5f9a83-4b74-48be-a44e-a6c8beee9460',
              'title': 'abracadabra',
@@ -75,7 +78,6 @@ async def prepare_es_film(es_client, redis_client):
              'writers': [],
              'genres': [],
              'file_path': ''}]
-    await wait_es()
 
     await helpers.async_bulk(es_client, generate_doc(data, index))
     logger.info('movie is uploaded')
@@ -84,8 +86,6 @@ async def prepare_es_film(es_client, redis_client):
 
     yield data
 
-    # удаляем кэш редис
-    await redis_client.flushdb()
     # удаляем загруженные в elastic данные
     await helpers.async_bulk(es_client, delete_doc(data, index))
     logger.info('movie is deleted')
@@ -96,7 +96,6 @@ async def prepare_es_genre(es_client):
     index = 'genre'
     data = [{'id': 'e91db2b1-d967-4785-bec9-1eade1d56243',
              'name': 'Test genre'}]
-    await wait_es()
 
     await helpers.async_bulk(es_client, generate_doc(data, index))
     logger.info('genre is uploaded')
@@ -114,9 +113,8 @@ async def prepare_es_person(es_client):
     index = 'persons'
     data = [{'id': '7f489c61-1a21-43d2-a3ad-3d900f8a9b5e',
             'full_name': 'Test Testovich',
-            'role': ['actor'],
-            'film_ids': ['3a5f9a83-4b74-48be-a44e-a6c8beee9460']}]
-    await wait_es()
+             'role': ['actor'],
+             'film_ids': ['3a5f9a83-4b74-48be-a44e-a6c8beee9460']}]
 
     await helpers.async_bulk(es_client, generate_doc(data, index))
     logger.info('person is uploaded')
@@ -127,6 +125,7 @@ async def prepare_es_person(es_client):
 
     await helpers.async_bulk(es_client, delete_doc(data, index))
     logger.info('person is deleted')
+
 
 @pytest.fixture
 async def get_all_data_elastic(es_client):

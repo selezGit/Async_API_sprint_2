@@ -1,11 +1,10 @@
+from settings import SETTINGS, logger
 import asyncio
 
 import repackage
 from elasticsearch import AsyncElasticsearch
 
 repackage.up()
-
-from settings import SETTINGS, logger
 
 
 async def wait_es():

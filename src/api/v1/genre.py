@@ -2,11 +2,10 @@ import uuid
 from http import HTTPStatus
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Query
-from pydantic import BaseModel, UUID4
-from services.genre import GenreService, get_genre_service
-
 from api.v1.base_view import BaseView
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from pydantic import UUID4, BaseModel
+from services.genre import GenreService, get_genre_service
 
 router = APIRouter()
 

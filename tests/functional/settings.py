@@ -1,6 +1,6 @@
-from pydantic import BaseSettings, Field
 import logging
-from typing import Any
+
+from pydantic import BaseSettings, Field
 
 logger = logging.getLogger('tests')
 logging.getLogger('elasticsearch').setLevel(logging.CRITICAL)

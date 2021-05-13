@@ -1,4 +1,5 @@
-from typing import List, Generator
+from typing import Generator, List
+
 
 def generate_doc(docs: List[dict], index: str) -> Generator:
     for doc in docs:

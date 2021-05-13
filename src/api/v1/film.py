@@ -2,13 +2,11 @@ from enum import Enum
 from http import HTTPStatus
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Query
-from models.film import Film, FilmShort
-from services.film import FilmService, get_film_service
-
 from api.v1.base_view import BaseView
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from models.film import Film, FilmShort
 from pydantic import UUID4
-
+from services.film import FilmService, get_film_service
 
 router = APIRouter()
 
@@ -26,7 +24,7 @@ class FilmView(BaseView):
         order: Optional[Order] = Order.desc,
         genre: Optional[UUID4] = None,
         size: Optional[int] = Query(50, gt=0, le=10000),
-        page: Optional[int] = Query(1 , gt=0, le=100),
+        page: Optional[int] = Query(1, gt=0, le=100),
         query: Optional[str] = None,
         request: Request = None,
         film_service: FilmService = Depends(get_film_service),

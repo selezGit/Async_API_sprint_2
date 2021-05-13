@@ -27,8 +27,6 @@ RUN mkdir -p /usr/src/tests
 
 # create the app user
 RUN addgroup --system app && adduser --system --no-create-home --group app
-# RUN chown -R app:app /usr/src/app && chmod -R 755 /usr/src/app
-
 
 # copy project
 COPY /src /usr/src/app
@@ -36,11 +34,3 @@ COPY /src /usr/src/app
 COPY /tests/ /usr/src/tests
 
 RUN chmod +x /usr/src/app/entrypoint.sh
-
-# # run entrypoint.sh
-#ENTRYPOINT ["/usr/src/app/src/entrypoint.sh"]
-#
-#CMD uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 8000
-
-
-#CMD gunicorn main:app --bind 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker

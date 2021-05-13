@@ -25,7 +25,7 @@ services:
       sh -c "pip install -r /usr/src/tests/functional/requirements.txt
       && python3 /usr/src/tests/functional/utils/wait_for_es.py
       && python3 /usr/src/tests/functional/utils/wait_for_redis.py
-      && pytest /usr/src/tests/functional/src"
+      && pytest -o log_cli=true /usr/src/tests/functional/src"
 
     depends_on:
       - elasticsearch
