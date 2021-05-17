@@ -13,15 +13,7 @@ from storage.genre import GenreBaseStorage, GenreElasticStorage
 from services.base import BaseService
 
 
-class GenreBaseService(BaseService):
-    def get_by_id(self, url: str, id: str) -> Optional[Dict]:
-        pass
-
-    def get_by_param(self, url: str, page: int, size: int) -> List[Optional[Dict]]:
-        pass
-
-
-class GenreService(GenreBaseService):
+class GenreService(BaseService):
     def __init__(self, cache: BaseCache, storage: GenreBaseStorage):
         self.cache = cache
         self.storage = storage

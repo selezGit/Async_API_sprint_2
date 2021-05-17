@@ -1,26 +1,16 @@
 from functools import lru_cache
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
 from aioredis import Redis
+from cache.base import BaseCache
+from cache.redis_cache import RedisCache
 from db.elastic import get_elastic
 from db.redis import get_redis
 from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
+from storage.person import PersonBaseStorage, PersonElasticStorage
 
 from services.base import BaseService
-from cache.base import BaseCache
-from cache.redis_cache import RedisCache
-from storage.person import PersonElasticStorage, PersonBaseStorage
-
-
-class PersonBaseService(BaseService):
-    async def get_by_id(self, url: str, id: str) -> Optional[Dict]:
-        pass
-
-    async def get_by_param(
-        self, url: str, page: int, size: int, q: str = None
-    ) -> List[Optional[Dict]]:
-        pass
 
 
 class PersonService(BaseService):
