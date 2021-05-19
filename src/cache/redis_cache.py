@@ -9,7 +9,7 @@ class RedisCache(BaseCache):
 
     def __init__(self, redis: Redis, expire: int = None):
         self.redis = redis
-        self.expire = expire or self.FILM_CACHE_EXPIRE_IN_SECONDS
+        self.expire = expire or self.CACHE_EXPIRE_IN_SECONDS
 
     @backoff.on_exception(backoff.expo, Exception)
     async def check_cache(self,

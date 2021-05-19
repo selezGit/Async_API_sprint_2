@@ -3,7 +3,7 @@ from typing import Any
 
 
 class BaseCache:
-    FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
+    CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
     @abc.abstractmethod
     async def check_cache(self,
