@@ -15,29 +15,7 @@ from storage.film import FilmBaseStorage, FilmElasticStorage
 from services.base import BaseService
 
 
-class FilmBaseService(BaseService):
-    @abc.abstractmethod
-    async def get_by_id(self, url: str, id: str) -> Optional[Dict]:
-        pass
-
-    @abc.abstractmethod
-    async def get_by_param(
-        self,
-        url: str,
-        order: str,
-        page: int,
-        size: int,
-        genre: str = None,
-        query: str = None,
-    ) -> List[Optional[Dict]]:
-        pass
-
-    @abc.abstractmethod
-    async def get_by_list_id(self, url: str, film_ids: List[str]) -> Optional[Dict]:
-        pass
-
-
-class FilmService(FilmBaseService):
+class FilmService(BaseService):
     def __init__(self, cache: BaseCache, storage: FilmBaseStorage):
         self.cache = cache
         self.storage = storage
